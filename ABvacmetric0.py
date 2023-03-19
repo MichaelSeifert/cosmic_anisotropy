@@ -14,7 +14,7 @@ def vectorfield(t, w, p):
         w :  vector of the state variables:
                   w = [A,B,C,D]
         t :  proper time
-        p :  vector of the parameters:
+        p :  vector of the parameters
                   p = [O_m, O_r, O_L, O_k, O_B, B0]
     """
     
@@ -67,7 +67,7 @@ def ABvacmetric0(p):
     Solves the ODE relating A, B, C, and D, replicating the function of ABvacmetric0. Note: this solves the differential equation when called.
 
     Arguments:
-        p :  vector of the parameters:
+        p :  vector of the parameters
                   p = [O_m, O_r, O_L, O_k, O_B, B0]
     """
     

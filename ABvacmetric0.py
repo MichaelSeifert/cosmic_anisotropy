@@ -102,18 +102,22 @@ def ABvacmetric0(p):
 # this test main function calls ABvacmetric0 for a given set of parameters and graphs the resulting A and B functions
 def main():
     
+    fig, axs = plt.subplots(2, sharex=True)
+    
     p = [.28, .01, .69, .01, .01, 0]
+    
+    O_m, O_r, O_L, O_k, O_B, B0 = p
     
     solution = ABvacmetric0(p)
     
     equation = solution[0]
     contract = solution[1]
+    times = solution[2]
     
     tmin = equation.t_min
     tmax = equation.t_max
     
     print(tmax, tmin)
-    
     
     tpoints = range(int(tmin * 1000), int(tmax * 1000))
     actualtpoints = []
@@ -123,17 +127,22 @@ def main():
         
     ypointsA = []
     ypointsB = []
+    ypointsC = []
 
-    
     for i in actualtpoints:
         point = equation(i)
         A = point[0]
         B = point[1]
+        C = point[2]
+        D = point[3]
         ypointsA.append(A)
         ypointsB.append(B)
+        ypointsC.append((O_m/(np.exp(3*A))) + O_r/np.exp(4*A) + O_L + O_k/(np.exp(2*(A-B))) + O_B/(np.exp(4*(A-B))) - math.pow(C, 2) + math.pow(D, 2))
         
-    plt.plot(actualtpoints, ypointsA, label = "A")
-    plt.plot(actualtpoints, ypointsB, label = "B")
+    axs[0].plot(actualtpoints, ypointsA, label = "A")
+    axs[0].plot(actualtpoints, ypointsB, label = "B")
+    axs[1].plot(actualtpoints, ypointsC, label = "Eq 9a")
+    axs[1].scatter(x = times, y = np.zeros(len(times)))
     plt.legend()
     plt.show()
 

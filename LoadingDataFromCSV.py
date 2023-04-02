@@ -42,4 +42,5 @@ def main():
     
     print(simulatedData.nangledata)
     
-main()
+if(__name__ == "__main__"):
+    main()

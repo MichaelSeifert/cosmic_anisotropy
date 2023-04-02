@@ -145,9 +145,9 @@ def main():
     axs[1].scatter(x = times, y = np.zeros(len(times)))
     plt.legend()
     plt.show()
-
     
-main()
+if(__name__ == "__main__"):
+    main()
     
     
     

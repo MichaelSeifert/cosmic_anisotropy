@@ -8,6 +8,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
+from ABvacmetric0 import ABvacmetric0
 
 def vectorfield(z, w, p):
     
@@ -28,13 +29,18 @@ def vectorfield(z, w, p):
     ABsolution, theta_0 = p
     A, B, C, D = ABsolution(t)
     #equation 32 in the mathematics document. It was easier to just define once as Q and not retype every time.
-    Q = (((C + 2*D)*np.exp(-2*A - 4*B)*math.pow(np.cos(theta_0),2))+((C-D)*np.exp(-2*A+2*B)*math.pow(np.sin(theta_0),2)))
+    Q = (((C + 2*D)*np.exp(-2*A - 4*B)*math.pow(theta_0,2))+((C-D)*np.exp(-2*A + 2*B)*(1 - math.pow(theta_0,2))))
     
     # create f = [t', q', psi',]
-    f = [-(1+z)/Q, (np.exp(-2*A+2*B))/Q, (np.exp(-4*A-2*B))/(Q*math.pow(1+z),2)]
+    f = [-(1+z)/Q, (np.exp(-2*A + 2*B))/Q, (np.exp(-4*A - 2*B))/(Q * np.power(1 + z, 2))]
     
     return f
     
+def hitCThetaMin(z, w, p):
+    
+    c_theta_min = np.power(10.0, -6)
+    return p[1] - c_theta_min
+
 def helperfunctions(p):
     """
     Solves the ODE relating t, q, psi. 
@@ -43,17 +49,37 @@ def helperfunctions(p):
         p :  vector of the parameters
                   p = [ABsolution, theta_0]
     """
+    
+    # Designate events to check either as terminal or directional via monkey patch.
+    hitCThetaMin.terminate = True;
+    
     continuousOutput = True; # whether or not to output a continuous solution
     vectorizedInput = True; # defines whether or not the solver is handling a system or an individual ODE
-    zRange = [2, 0] # defines the range of z values to solve over
+    zRange = [0, 2] # defines the range of z values to solve over
     initVal = [0, 0, 0] # defines initial values for t, q, psi
+    eventsToCheck = [hitCThetaMin] # defines the functions to check for termination of integration. Must be of form event([A, B, C, D], t). Event triggers on event() = 0.
     
     # calculate the solution. Returns a Bunch object with many fields.
-    solution = solve_ivp(vectorfield, zRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, args = (p,))
+    solution = solve_ivp(vectorfield, zRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, args = (p,), events = eventsToCheck)
     
     sol = solution.sol # the continuous solution of the differential equation as instance of OdeSolution
     redshifts = solution.t # the redshifts that were considered
     
     return [sol, redshifts]
+
+def main():    
+    
+    #[O_m, O_r, O_L, O_k, O_B, B0]
+    p = [0.28, 0.01, 0.69, 0.01, 0.01, 0]
+    solution = ABvacmetric0(p)
+    
+    equation = solution[0]
+    
+    sol, redshifts = helperfunctions([equation, .25])
+    
+    print(sol(.5))
+    
+if(__name__ == "__main__"):
+    main()
 
     

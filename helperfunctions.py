@@ -36,10 +36,6 @@ def vectorfield(z, w, p):
     
     return f
     
-def hitCThetaMin(z, w, p):
-    
-    c_theta_min = np.power(10.0, -6)
-    return p[1] - c_theta_min
 
 def helperfunctions(p):
     """
@@ -50,17 +46,14 @@ def helperfunctions(p):
                   p = [ABsolution, theta_0]
     """
     
-    # Designate events to check either as terminal or directional via monkey patch.
-    hitCThetaMin.terminate = True;
     
     continuousOutput = True; # whether or not to output a continuous solution
     vectorizedInput = True; # defines whether or not the solver is handling a system or an individual ODE
     zRange = [0, 2] # defines the range of z values to solve over
     initVal = [0, 0, 0] # defines initial values for t, q, psi
-    eventsToCheck = [hitCThetaMin] # defines the functions to check for termination of integration. Must be of form event([A, B, C, D], t). Event triggers on event() = 0.
     
     # calculate the solution. Returns a Bunch object with many fields.
-    solution = solve_ivp(vectorfield, zRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, args = (p,), events = eventsToCheck)
+    solution = solve_ivp(vectorfield, zRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, args = (p,))
     
     sol = solution.sol # the continuous solution of the differential equation as instance of OdeSolution
     redshifts = solution.t # the redshifts that were considered

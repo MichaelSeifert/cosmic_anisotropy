@@ -16,13 +16,18 @@ def chiSquared(params, dataset):
     # calculate chi squared
     chi2 = np.power(dataset.distmoddata - distMod(dataset.zdata, dataset.nangledata, params), 2) / np.power(dataset.errordata, 2)
     
-    plt.scatter(dataset.errordata, chi2)
+    #plt.scatter(np.dot(dataset.nangledata, params[7]), chi2)
+    #plt.yscale("log")
+    #plt.xscale("log")
     
     return np.sum(chi2)
 
 def main():
-    result = chiSquared([0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [-0.623956, -0.444153, 0.642967]], DataSet("SimulatedData.csv"))
-    print(result)
+    results = []
+    for i in range(100):
+        result = chiSquared([0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [-0.623956, -0.444153, 0.642967]], DataSet("SimulatedData.csv"))
+        results.append(result)
+    print(results)
 
 if(__name__ == '__main__'):
     main()

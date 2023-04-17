@@ -113,12 +113,12 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
 def main():
     
     randomPoints = RandomPoints()
-    startPoint = randomPoints.getPoint()
+    startPoint = [.25, .04, .69, .01, .01, 0, .7, [1, 0, 0]]
     print(startPoint)
     
     dataset = DataSet("SimulatedData.csv")
     
-    MCMC(dataset, 1000, startPoint)
+    MCMC(dataset, 100, startPoint)
     
 if(__name__ == "__main__"):
     main()

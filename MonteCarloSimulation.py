@@ -80,10 +80,10 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
             chi2s.append(currentChi2)
             
         # optimal acceptance is .234 I guess?
-        if(numberStepsIn100 / 100.0 < .23): # steps too big
+        """if(numberStepsIn100 / 100.0 < .23): # steps too big
             stepSize = stepSize / 2
         elif(stepSize < .0001): # steps too small, but not getting too big either
-            stepSize = stepSize * 2
+            stepSize = stepSize * 2"""
             
     pointsDict = {
         "O_m": oms,

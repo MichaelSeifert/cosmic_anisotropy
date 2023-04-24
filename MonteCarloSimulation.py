@@ -48,10 +48,6 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
             if(candPoint[4] < 0):
                 candPoint[4] = 0
                 
-            for j in range(7):
-                if(candPoint[j] > 1):
-                    candPoint[j] = 1
-                
             # Set O_k to fit the other parameters
             candPoint[3] = 1 - candPoint[0] - candPoint[1] - candPoint[2] - candPoint[4] - np.power(candPoint[5], 2)
             
@@ -72,23 +68,21 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
                 numberStepsIn100 = numberStepsIn100 + 1
                 
             oms.append(currentPoint[0])
-            ors.append(currentPoint[0])
-            oLs.append(currentPoint[0])
-            oks.append(currentPoint[0])
-            oBs.append(currentPoint[0])
-            bos.append(currentPoint[0])
-            hs.append(currentPoint[0])
-            nvec1s.append(currentPoint[0])
-            nvec2s.append(currentPoint[0])
-            nvec3s.append(currentPoint[0])
+            ors.append(currentPoint[1])
+            oLs.append(currentPoint[2])
+            oks.append(currentPoint[3])
+            oBs.append(currentPoint[4])
+            bos.append(currentPoint[5])
+            hs.append(currentPoint[6])
+            nvec1s.append(currentPoint[7][0])
+            nvec2s.append(currentPoint[7][1])
+            nvec3s.append(currentPoint[7][2])
             chi2s.append(currentChi2)
             
         # optimal acceptance is .234 I guess?
-        print(numberStepsIn100 / 100.0)
-        
         if(numberStepsIn100 / 100.0 < .23): # steps too big
             stepSize = stepSize / 2
-        else: # steps too small
+        elif(stepSize < .0001): # steps too small, but not getting too big either
             stepSize = stepSize * 2
             
     pointsDict = {

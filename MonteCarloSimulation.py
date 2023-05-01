@@ -1,19 +1,27 @@
 from ChiSquared import chiSquared
 from LoadingDataFromCSV import DataSet
-from GeneratePoints import RandomPoints
 import numpy as np
 import pandas as pd
 
-def MCMC(dataset, totalPoints, initPoint, run = 0):
-    
-    initChi2 = chiSquared(initPoint, dataset)
+def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     
     stepSize = .00001
     angleStepSize = .001
     
+    if(cont):
+        file = pd.read_csv("MonteCarloRun" + str(run) + ".csv")
+        df=pd.DataFrame(file.iloc[-1:,:].values)
+        pointsComplete = int(df.iloc[0][0])
+        initPoint = [df.iloc[0][1], df.iloc[0][2], df.iloc[0][3], df.iloc[0][4], df.iloc[0][5], df.iloc[0][6], df.iloc[0][7], [df.iloc[0][8], df.iloc[0][9], df.iloc[0][10]]]
+        print(initPoint)
+    else:
+        pointsComplete = 1
+        
+    initChi2 = chiSquared(initPoint, dataset)
     currentPoint = initPoint
     currentChi2 = initChi2
     
+    indexes = [pointsComplete]
     oms = [initPoint[0]]
     ors = [initPoint[1]]
     oLs = [initPoint[2]]
@@ -26,9 +34,42 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
     nvec3s = [initPoint[7][2]]
     chi2s = [initChi2]
     
+    pointsDict = {
+        "Index": indexes,
+        "O_m": oms,
+        "O_r": ors,
+        "O_L": oLs,
+        "O_k": oks,
+        "O_B": oBs,
+        "b0": bos,
+        "h": hs,
+        "nvec1": nvec1s,
+        "nvec2": nvec2s,
+        "nvec3": nvec3s,
+        "Chi2": chi2s
+        }
+    
+    dataframe = pd.DataFrame(pointsDict)
+    if(not cont):
+        dataframe.to_csv("MonteCarloRun" + str(run) + ".csv", header = True, index = False)
+    
     for i in range(int(totalPoints / 100)):
         
         numberStepsIn100 = 0;
+        
+        if(pointsComplete != 1):
+            indexes = []
+            oms = []
+            ors = []
+            oLs = []
+            oks = []
+            oBs = []
+            bos = []
+            hs = []
+            nvec1s = []
+            nvec2s = []
+            nvec3s = []
+            chi2s = []
         
         for j in range(100):
             candPoint = currentPoint.copy()
@@ -70,6 +111,8 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
                 currentChi2 = candChi2
                 numberStepsIn100 = numberStepsIn100 + 1
                 
+            pointsComplete += 1
+            indexes.append(pointsComplete)
             oms.append(currentPoint[0])
             ors.append(currentPoint[1])
             oLs.append(currentPoint[2])
@@ -82,29 +125,31 @@ def MCMC(dataset, totalPoints, initPoint, run = 0):
             nvec3s.append(currentPoint[7][2])
             chi2s.append(currentChi2)
             
+        pointsDict = {
+                "Index": indexes,
+                "O_m": oms,
+                "O_r": ors,
+                "O_L": oLs,
+                "O_k": oks,
+                "O_B": oBs,
+                "b0": bos,
+                "h": hs,
+                "nvec1": nvec1s,
+                "nvec2": nvec2s,
+                "nvec3": nvec3s,
+                "Chi2": chi2s
+            }
+    
+        dataframe = pd.DataFrame(pointsDict)
+        dataframe.to_csv("MonteCarloRun" + str(run) + ".csv", header = False, index = False, mode = 'a')
+            
         # optimal acceptance is .234 I guess?
         """if(numberStepsIn100 / 100.0 < .23): # steps too big
             stepSize = stepSize / 2
         elif(stepSize < .0001): # steps too small, but not getting too big either
             stepSize = stepSize * 2"""
         #print(numberStepsIn100 / 100.0)
-            
-    pointsDict = {
-        "O_m": oms,
-        "O_r": ors,
-        "O_L": oLs,
-        "O_k": oks,
-        "O_B": oBs,
-        "b0": bos,
-        "h": hs,
-        "nvec1": nvec1s,
-        "nvec2": nvec2s,
-        "nvec3": nvec3s,
-        "Chi2": chi2s
-        }
-    
-    dataframe = pd.DataFrame(pointsDict)
-    dataframe.to_csv("MonteCarloRun" + str(run) + ".csv")
+        
             
     
     
@@ -143,7 +188,7 @@ def main():
     
     dataset = DataSet("SimulatedData.csv")
     
-    MCMC(dataset, 100, startPoint)
+    MCMC(dataset, 100, startPoint, run=0, cont=True)
     
 if(__name__ == "__main__"):
     main()

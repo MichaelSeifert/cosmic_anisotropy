@@ -17,7 +17,7 @@ parser.add_argument("run",
                     help='which run number this is (for file output naming)', type = int)
 parser.add_argument("dataset", 
                     help = "file name of the simulated dataset")
-parser.add_argument("continue", 
+parser.add_argument("cont", 
                     help="continuing an existing run?", type = bool)
 args = parser.parse_args()
 
@@ -54,7 +54,7 @@ def runOneMCMC():
     
     dataset = DataSet(args.dataset)
     
-    MCMC(dataset, args.numSteps, startPoint, args.run)
+    MCMC(dataset, args.numSteps, startPoint, args.run, args.cont)
     
 def main():
     runOneMCMC()

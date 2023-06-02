@@ -13,9 +13,9 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
         df=pd.DataFrame(file.iloc[-1:,:].values)
         pointsComplete = int(df.iloc[0][0])
         initPoint = [df.iloc[0][1], df.iloc[0][2], df.iloc[0][3], df.iloc[0][4], df.iloc[0][5], df.iloc[0][6], df.iloc[0][7], [df.iloc[0][8], df.iloc[0][9], df.iloc[0][10]]]
-        print(initPoint)
+        #print(initPoint)
     else:
-        pointsComplete = 1
+        pointsComplete = 0
         
     initChi2 = chiSquared(initPoint, dataset)
     currentPoint = initPoint

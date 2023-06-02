@@ -18,8 +18,13 @@ parser.add_argument("run",
 parser.add_argument("dataset", 
                     help = "file name of the simulated dataset")
 parser.add_argument("cont", 
-                    help="continuing an existing run?", type = bool)
+                    help="continuing an existing run?")
 args = parser.parse_args()
+
+if(args.cont == "True"):
+    args.cont = True
+else:
+    args.cont = False
 
 def runOneMCMC():
     

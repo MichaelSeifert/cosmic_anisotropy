@@ -1,6 +1,0 @@
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
-
-  1) StdEnv
-/usr/share/lmod/lmod/init/bash: line 162: conda: command not found
-slurmstepd: error: *** JOB 18421952 ON c26n09 CANCELLED AT 2023-04-17T12:36:43 DUE TO TIME LIMIT ***

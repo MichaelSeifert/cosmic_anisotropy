@@ -1,5 +1,0 @@
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
-
-  1) StdEnv
-slurmstepd: error: *** JOB 18999771 ON c26n01 CANCELLED AT 2023-05-02T11:24:21 DUE TO TIME LIMIT ***

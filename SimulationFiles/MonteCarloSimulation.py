@@ -17,8 +17,15 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     """
     
     #maximum step size values
-    stepSize = .00001
-    angleStepSize = .001
+    stepSize = .01
+    angleStepSize = .05
+    
+    '''
+    "Temperature" for simulated annealing.  T = 1 is what we 
+    want to get to eventually.  Higher T means that the MCMC chain will sample
+    a larger portion of the parameter space.
+    '''
+    temperature = 1
     
     #If continuing, load in relevant data, else prepare for a new run
     if(cont):
@@ -48,6 +55,8 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     nvec2s = [initPoint[7][1]]
     nvec3s = [initPoint[7][2]]
     chi2s = [initChi2]
+    stepSizes = [stepSize]
+    angleStepSizes = [angleStepSize]
     
     #prepare to write out to file
     pointsDict = {
@@ -62,7 +71,9 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
         "nvec1": nvec1s,
         "nvec2": nvec2s,
         "nvec3": nvec3s,
-        "Chi2": chi2s
+        "Chi2": chi2s,
+        "StepSize": stepSizes,
+        "AngleStepSize": angleStepSizes        
         }
     
     dataframe = pd.DataFrame(pointsDict)
@@ -75,7 +86,11 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     for i in range(int(totalPoints / 100)):
         
         #for calculating acceptance ratio
-        numberStepsIn100 = 0;
+        paramAttempted = 0
+        paramAccepted = 0 
+        dirAttempted = 0
+        dirAccepted = 0
+        dirStep = False
         
         #reset the data lists
         if(pointsComplete != 1):
@@ -91,6 +106,8 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
             nvec2s = []
             nvec3s = []
             chi2s = []
+            stepSizes = []
+            angleStepSizes = []
         
         #run 100 points
         for j in range(100):
@@ -98,45 +115,71 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
             #prepare a candidate point
             candPoint = currentPoint.copy()
             
-            #perform a step in parameters
-            candPoint[0] = candPoint[0] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-            candPoint[1] = candPoint[1] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-            candPoint[2] = candPoint[2] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-            candPoint[4] = candPoint[4] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-            candPoint[5] = candPoint[5] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-            candPoint[6] = candPoint[6] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
-        
-            #make sure values are physical
-            if(candPoint[0] < 0):
-                candPoint[0] = 0
-            if(candPoint[1] < 0):
-                candPoint[1] = 0   
-            if(candPoint[4] < 0):
-                candPoint[4] = 0
+            if(np.random.randint(2) == 0): # Step in parameters
+            
+                dirStep = False
+                paramAttempted = paramAttempted + 1
+            
+                #perform a step in parameters
+                candPoint[0] = candPoint[0] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+                candPoint[1] = candPoint[1] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+                candPoint[2] = candPoint[2] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+                candPoint[4] = candPoint[4] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+                candPoint[5] = candPoint[5] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+                candPoint[6] = candPoint[6] + ((2 * stepSize * np.random.rand(1)[0]) - (1 * stepSize))
+            
+                #make sure values are physical
+                if(candPoint[0] < 0):
+                    candPoint[0] = 0
+                if(candPoint[1] < 0):
+                    candPoint[1] = 0   
+                if(candPoint[4] < 0):
+                    candPoint[4] = 0
                 
-            # Set O_k to fit the other parameters
-            candPoint[3] = 1 - candPoint[0] - candPoint[1] - candPoint[2] - candPoint[4] - np.power(candPoint[5], 2)
+                # Set O_k to fit the other parameters
+                candPoint[3] = 1 - candPoint[0] - candPoint[1] - candPoint[2] - candPoint[4] - np.power(candPoint[5], 2)
+                
+            else: # Step in direction 
             
-            #perform a step in direction, and renormalize
-            currentDir = candPoint[7].copy()
-            n0vec = [0, 0, 0]
-            n0vec[0] = (currentDir[0] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
-            n0vec[1] = (currentDir[1] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
-            n0vec[2] = (currentDir[2] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
-            n0vec[0] = (n0vec[0] / np.linalg.norm(np.array(currentDir)))
-            n0vec[1] = (n0vec[1] / np.linalg.norm(np.array(currentDir)))
-            n0vec[2] = (n0vec[2] / np.linalg.norm(np.array(currentDir)))
-            candPoint[7] = n0vec.copy()
+                # Set flag
+                dirStep = True
+                dirAttempted = dirAttempted + 1
             
+                #perform a step in direction, and renormalize
+                currentDir = candPoint[7].copy()
+                n0vec = [0, 0, 0]
+                n0vec[0] = (currentDir[0] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
+                n0vec[1] = (currentDir[1] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
+                n0vec[2] = (currentDir[2] + ((2 * angleStepSize * np.random.rand(1)[0]) - (1 * angleStepSize)))
+                tempnorm = np.linalg.norm(np.array(n0vec))
+                n0vec[0] = (n0vec[0] / tempnorm)
+                n0vec[1] = (n0vec[1] / tempnorm)
+                n0vec[2] = (n0vec[2] / tempnorm)
+                candPoint[7] = n0vec.copy()
+
+                '''                
+                # choose new candidate direction randomly over unit sphere
+                n0vec = np.random.normal(0.0,1.0,3)
+                tempnorm = np.linalg.norm(np.array(n0vec))
+                n0vec[0] = (n0vec[0] / tempnorm)
+                n0vec[1] = (n0vec[1] / tempnorm)
+                n0vec[2] = (n0vec[2] / tempnorm)
+                candPoint[7] = n0vec.copy()
+                '''                
+ 
+           
             #recalculate chi squared for the step
             candChi2 = chiSquared(candPoint, dataset)
             
             #perform the step if chi sqaured decreases or probabilistically
-            if(candChi2 <= currentChi2 or np.random.rand(1)[0] < np.exp(currentChi2 - candChi2)):
+            if(candChi2 <= currentChi2 or np.random.rand(1)[0] < np.exp((currentChi2 - candChi2)/temperature)):
                 #print(f"step: {100*i + j}")
                 currentPoint = candPoint
                 currentChi2 = candChi2
-                numberStepsIn100 = numberStepsIn100 + 1
+                if(dirStep):
+                    dirAccepted = dirAccepted + 1
+                else:
+                    paramAccepted = paramAccepted + 1
                 
             #save the point
             pointsComplete += 1
@@ -152,36 +195,65 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
             nvec2s.append(currentPoint[7][1])
             nvec3s.append(currentPoint[7][2])
             chi2s.append(currentChi2)
+            stepSizes.append(stepSize)
+            angleStepSizes.append(angleStepSize)
             
         #write all the points to file
         pointsDict = {
-                "Index": indexes,
-                "O_m": oms,
-                "O_r": ors,
-                "O_L": oLs,
-                "O_k": oks,
-                "O_B": oBs,
-                "b0": bos,
-                "h": hs,
-                "nvec1": nvec1s,
-                "nvec2": nvec2s,
-                "nvec3": nvec3s,
-                "Chi2": chi2s
-            }
+            "Index": indexes,
+            "O_m": oms,
+            "O_r": ors,
+            "O_L": oLs,
+            "O_k": oks,
+            "O_B": oBs,
+            "b0": bos,
+            "h": hs,
+            "nvec1": nvec1s,
+            "nvec2": nvec2s,
+            "nvec3": nvec3s,
+            "Chi2": chi2s,
+            "StepSize": stepSizes,
+            "AngleStepSize": angleStepSizes        
+        }
     
         dataframe = pd.DataFrame(pointsDict)
         dataframe.to_csv("MonteCarloRun" + str(run) + ".csv", header = False, index = False, mode = 'a')
-            
-        #we never did get acceptance ratio based step size changes working
-        """
-        # optimal acceptance is .234 I guess?
-        if(numberStepsIn100 / 100.0 < .23): # steps too big
-            stepSize = stepSize / 2
-        elif(stepSize < .0001): # steps too small, but not getting too big either
-            stepSize = stepSize * 2
-        #print(numberStepsIn100 / 100.0)
-        """
         
+        print("Step:", (i+1)*100)
+        print("Chi-squared:", currentChi2)
+
+        # Adjust parameter step size if needed
+        print("Param. acceptance:", paramAccepted, "/", paramAttempted, "=", paramAccepted/paramAttempted)
+        if(paramAccepted/paramAttempted < .20):
+            stepSize = stepSize / 2
+        elif(paramAccepted/paramAttempted > .25):
+            stepSize = stepSize * 2
+        print("New param. step size:", stepSize)
+            
+        # Adjust parameter step size if needed
+        print("Ang. acceptance:", dirAccepted, "/", dirAttempted, "=", dirAccepted/dirAttempted )
+        if(dirAccepted/dirAttempted < .20):
+            angleStepSize = angleStepSize / 2
+        elif(dirAccepted/dirAttempted > .25):
+            angleStepSize = angleStepSize * 2
+        print("New ang. step size:", angleStepSize)
+            
+        print()
+                
+        
+        
+
+'''            
+        #we never did get acceptance ratio based step size changes working
+        # optimal acceptance is .234 I guess?
+        if(numberStepsIn100 / 100.0 < .20): # steps too big
+            stepSize = stepSize / 2
+            angleStepSize = angleStepSize / 2
+        elif(numberStepsIn100 / 100.0 > .25): # steps too small
+            stepSize = stepSize * 2
+            angleStepSize = angleStepSize * 2
+        print(numberStepsIn100 / 100.0)
+'''        
             
     
     
@@ -220,7 +292,9 @@ def main():
     
     dataset = DataSet("SimulatedData.csv")
     
-    MCMC(dataset, 100, startPoint, run=0, cont=True)
+    MCMC(dataset, 20000, startPoint, run=0, cont=False)
+    
+    print()
     
 if(__name__ == "__main__"):
     main()

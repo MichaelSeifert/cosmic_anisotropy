@@ -28,7 +28,8 @@ def chiSquared(params, dataset):
 def main():
     results = []
     for i in range(100):
-        result = chiSquared([0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [-0.623956, -0.444153, 0.642967]], DataSet("SimulatedData.csv"))
+#        result = chiSquared([0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [-0.623956, -0.444153, 0.642967]], DataSet("SimulatedData.csv"))
+        result = chiSquared([0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [0.623956, -0.444153, 0.642967]], DataSet("SimulatedData.csv"))
         results.append(result)
     print(results)
 

@@ -102,7 +102,7 @@ def ABvacmetric0(p):
 # this test main function calls ABvacmetric0 for a given set of parameters and graphs the resulting A and B functions
 def main():
     
-    fig, axs = plt.subplots(3, sharex=True)
+    fig, axs = plt.subplots(2, sharex=True)
     
     p = [0.5201459252081235, 0.142390267735635, -0.809943268067628, 0.5932404020470752, 0.4375982055354455, 0.34142124647032257]
     
@@ -143,9 +143,10 @@ def main():
         
     axs[0].plot(actualtpoints, ypointsA, label = "A")
     axs[0].plot(actualtpoints, ypointsB, label = "B")
+    plt.legend()
     axs[1].plot(actualtpoints, ypointsC, label = "Eq 9a")
     axs[1].scatter(x = times, y = np.zeros(len(times)))
-    axs[2].plot(actualtpoints, ypointsD)
+#    axs[2].plot(actualtpoints, ypointsD)
     plt.legend()
     plt.show()
     

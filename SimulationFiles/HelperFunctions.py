@@ -57,12 +57,31 @@ def helperfunctions(p):
 def main():    
     
     #[O_m, O_r, O_L, O_k, O_B, B0]
-    p = [0.28, 0.01, 0.69, 0.01, 0.01, 0]
+    p = [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025]
     solution = ABvacmetric0(p)
     
     equation = solution[0]
     
-    sol, redshifts = helperfunctions([equation, .25])
+    # sol, redshifts = helperfunctions([equation, 0.5])
+    
+    fig, ax = plt.subplots(3, 1, sharex = True)
+    
+    cthvals=[0.01, 0.1, 0.2, 0.5, 1]
+    for cth in reversed(cthvals):
+        sol, redshifts = helperfunctions([equation, cth])
+        redshifts = np.linspace(0.01,2.,100)
+        t, q, psi = sol(redshifts)
+        ax[0].plot(redshifts, t, label=cth)
+        ax[1].plot(redshifts, q)
+        ax[2].plot(redshifts, psi)
+        
+    ax[0].set_ylabel('tau_e')
+    ax[1].set_ylabel('q_o')
+    ax[2].set_ylabel('psi_o')
+    ax[2].set_xlabel('z')
+    ax[2].set_yscale('asinh')    
+    fig.legend(loc='outside upper right')
+    plt.show()
     
     print(sol(.5))
     

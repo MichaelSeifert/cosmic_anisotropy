@@ -44,7 +44,7 @@ def hitZMax(t, w, p):
     A = w[0]
     B = w[1]
     
-    # we want to stop when either direction hits zmax, so that our domain is valid everywhere
+    # we want to stop when both directions have reached zmax, so that our domain is valid everywhere
     return min(np.exp(-(A + 2 * B)) - 1 - (zmax + .1), np.exp(-(A - B)) - 1 - (zmax + .1))
 
 def contracting(t, w, p):
@@ -85,8 +85,12 @@ def ABvacmetric0(p):
     initVal = [0, 0, 1, B0] # defines initial values for A, B, C, and D
     eventsToCheck = [contracting, hitZMax] # defines the functions to check for termination of integration. Must be of form event([A, B, C, D], t). Event triggers on event() = 0.
     
-    # calculate the solution. Returns a Bunch object with many fields. See documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html#scipy.integrate.solve_ivp
-    solution = solve_ivp(vectorfield, tRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, events = eventsToCheck, args = (p,))
+    # calculate the solution. Returns a Bunch object with many fields. 
+    # See documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html#scipy.integrate.solve_ivp
+    solution = solve_ivp(vectorfield, tRange, initVal, 
+                         dense_output = continuousOutput, vectorized = vectorizedInput, 
+                         events = eventsToCheck, args = (p,)#, rtol= 1e-7, atol = 1e-10
+                         )
     
     sol = solution.sol # the continuous solution of the differential equation as instance of OdeSolution
     t_events = solution.t_events # tracks the occurences of event triggers during integration
@@ -102,9 +106,9 @@ def ABvacmetric0(p):
 # this test main function calls ABvacmetric0 for a given set of parameters and graphs the resulting A and B functions
 def main():
     
-    fig, axs = plt.subplots(2, sharex=True)
+    fig, axs = plt.subplots(3, sharex=True)
     
-    p = [0.5201459252081235, 0.142390267735635, -0.809943268067628, 0.5932404020470752, 0.4375982055354455, 0.34142124647032257]
+    p = [0.5,0.02,0.3,0.079375,0.1,0.025]
     
     O_m, O_r, O_L, O_k, O_B, B0 = p
     
@@ -129,6 +133,7 @@ def main():
     ypointsB = []
     ypointsC = []
     ypointsD = []
+    ypointsE = []
 
     for i in actualtpoints:
         point = equation(i)
@@ -138,15 +143,23 @@ def main():
         D = point[3]
         ypointsA.append(A)
         ypointsB.append(B)
-        ypointsC.append((O_m/(np.exp(3*A))) + O_r/np.exp(4*A) + O_L + O_k/(np.exp(2*(A-B))) + O_B/(np.exp(4*(A-B))) - math.pow(C, 2) + math.pow(D, 2))
-        ypointsD.append(min(np.exp(-(A + 2 * B)) - 1 - (2 + .1), np.exp(-(A - B)) - 1 - (2 + .1)))
-        
+        # C stores the value of Eq. (9a) in the math notes, i.e., the tt-component
+        # of the Einstein equation
+        ypointsC.append(abs((O_m/(np.exp(3*A))) + O_r/np.exp(4*A) + O_L + O_k/(np.exp(2*(A-B))) + O_B/(np.exp(4*(A-B))) - math.pow(C, 2) + math.pow(D, 2)))
+        ypointsD.append(np.exp(-(A + 2 * B)) - 1 )
+        ypointsE.append(np.exp(-(A - B)) - 1 )
+                  
     axs[0].plot(actualtpoints, ypointsA, label = "A")
     axs[0].plot(actualtpoints, ypointsB, label = "B")
-    plt.legend()
+    axs[0].legend(loc="upper right")
     axs[1].plot(actualtpoints, ypointsC, label = "Eq 9a")
     axs[1].scatter(x = times, y = np.zeros(len(times)))
-#    axs[2].plot(actualtpoints, ypointsD)
+    axs[1].set_yscale('log')
+    axs[1].legend(loc="upper right")
+    axs[2].set_yscale('log')
+    axs[2].plot(actualtpoints, ypointsD, label = "Redshift (par.)")
+    axs[2].plot(actualtpoints, ypointsE, label = "Redshift (perp.)")
+    axs[2].legend(loc="upper right")
     plt.legend()
     plt.show()
     

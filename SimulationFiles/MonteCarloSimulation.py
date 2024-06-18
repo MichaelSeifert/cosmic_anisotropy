@@ -21,7 +21,7 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     angleStepSize = .05
     
     '''
-    "Temperature" for simulated annealing.  T = 1 is what we 
+    "Temperature" .  T = 1 is what we 
     want to get to eventually.  Higher T means that the MCMC chain will sample
     a larger portion of the parameter space.
     '''
@@ -259,6 +259,7 @@ def MCMC(dataset, totalPoints, initPoint, run = 0, cont = False):
     
 def main():
     
+    '''
     dir1, dir2, dir3 = np.random.rand(3)
     currentDir = [dir1, dir2, dir3]
     n0vec = [dir1 / np.linalg.norm(np.array(currentDir)), dir2 / np.linalg.norm(np.array(currentDir)), dir3 / np.linalg.norm(np.array(currentDir))]
@@ -283,6 +284,16 @@ def main():
         
     #h between .6 and .8
     h = .2 * np.random.rand(1)[0] + 0.6
+    '''
+    
+    # True parameter values from simulated data
+    n0vec = [2/3, 2/3, -1/3]
+    O_m = 0.5
+    O_r = 0.02
+    O_B = 0.1
+    O_L = 0.3
+    b0 = 0.025
+    h = 1
     
     O_k = 1 - O_m - O_r - O_L - O_B - np.power(b0, 2)
         
@@ -292,7 +303,7 @@ def main():
     
     dataset = DataSet("SimulatedData.csv")
     
-    MCMC(dataset, 20000, startPoint, run=0, cont=False)
+    MCMC(dataset, 1000, startPoint, run=0, cont=False)
     
     print()
     

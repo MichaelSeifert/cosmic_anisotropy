@@ -1,5 +1,6 @@
 from ABvacmetric0 import ABvacmetric0
 import numpy as np
+import matplotlib as plt
 from HelperFunctions import helperfunctions
 from LoadingDataFromCSV import DataSet
 from scipy.interpolate import RectBivariateSpline
@@ -32,7 +33,10 @@ def distMod(z_list, nvec_list, paramList):
     #could potentially be even more efficient to solve a PDE instead of an ODE + interpolation to get helperfunctions.
     
     #set points to interpolate between
-    c_theta_points = np.array([.000001, .00001, .0001, .001, .01, .1, 1])
+    #    c_theta_points = np.array([.000001, .00001, .0001, .001, .01, .1, 1])
+    minintval = 6
+    intptsperdecade = 5
+    c_theta_points = np.exp(np.linspace(-minintval*np.log(10.),0,minintval*intptsperdecade+1))
     z_points = np.arange(0, 2.0, .01)
     
     #store results
@@ -85,7 +89,17 @@ def distMod(z_list, nvec_list, paramList):
 def main():
     
     dataset = DataSet("SimulatedData.csv")
-    print(distMod([dataset.zdata[0]], [dataset.nangledata[0]], [0.28, 0.01, 0.69, 0.01, 0.01, 0, 0.7, [-0.561726, -0.73281, -0.383997]]))
+    calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]])
+    print(calculatedDistMods)
+    
+    '''
+    Code below plots calculated DMs from "true" DMs imported from no-noise 
+    data set.  Used for debugging purposes.
+    '''
+    trueDataSet = DataSet("Simulated_data_no_noise.csv")
+    plt.pyplot.scatter(trueDataSet.distmoddata,calculatedDistMods)
+    plt.pyplot.xlabel("True dist. mod.")
+    plt.pyplot.ylabel("Calc. dist. mod.")
     
 if(__name__ == "__main__"):
     main()

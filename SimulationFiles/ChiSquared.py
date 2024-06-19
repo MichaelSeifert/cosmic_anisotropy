@@ -23,14 +23,14 @@ def chiSquared(params, dataset):
     plt.xscale("log")
     """
     
-    # Print individual chi-squared values
-    # print(np.sort(chi2))
+    # Print sorted individual chi-squared values
+    print(np.sort(chi2))
     
     return np.sum(chi2)
 
 def main():
     
-    print( chiSquared([0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]], DataSet("SimulatedData.csv")))
+    print( chiSquared([0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]], DataSet("Simulated_Data_10k.csv")))
 
 
 # Code below runs chiSquared repeatedly; presumably for benchmarking?

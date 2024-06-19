@@ -23,8 +23,9 @@ def chiSquared(params, dataset):
     plt.xscale("log")
     """
     
-    # Print sorted individual chi-squared values
-    print(np.sort(chi2))
+    # Print top 1% of largest sorted individual chi-squared values
+    n = len(chi2)//100
+    print("Top 1% of chi-squared values:\n", np.sort(chi2)[-n:])
     
     return np.sum(chi2)
 

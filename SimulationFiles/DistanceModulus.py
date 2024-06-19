@@ -38,6 +38,8 @@ def distMod(z_list, nvec_list, paramList):
     intptsperdecade = 5
     c_theta_points = np.exp(np.linspace(-minintval*np.log(10.),0,minintval*intptsperdecade+1))
     z_points = np.arange(0, 2.0, .01)
+    # z_points = np.concatenate((np.arange(0, 1.8, 0.01), np.arange(1.801, 2, 0.001)))
+    # print(z_points)
     
     #store results
     trows = []
@@ -64,9 +66,14 @@ def distMod(z_list, nvec_list, paramList):
     psiovals = np.array(psirows)
     
     #create the interpolating functions
-    interpolate_te = RectBivariateSpline(c_theta_points, z_points, tevals)
-    interpolate_qo = RectBivariateSpline(c_theta_points, z_points, qovals)
-    interpolate_psio = RectBivariateSpline(c_theta_points, z_points, psiovals)
+    degx=3
+    degy=3
+    interpolate_te = RectBivariateSpline(c_theta_points, z_points, tevals, 
+                                         kx=degx, ky=degy)
+    interpolate_qo = RectBivariateSpline(c_theta_points, z_points, qovals, 
+                                         kx=degx, ky=degy)
+    interpolate_psio = RectBivariateSpline(c_theta_points, z_points, psiovals, 
+                                           kx=degx, ky=degy)
             
     # stores distmods
     distmods = []

@@ -25,7 +25,7 @@ def chiSquared(params, dataset):
     
     # Print top 1% of largest sorted individual chi-squared values
     n = len(chi2)//100
-    print("Top 1% of chi-squared values:\n", np.sort(chi2)[-n:])
+    # print("Top 1% of chi-squared values:\n", np.sort(chi2)[-n:])
     
     return np.sum(chi2)
 

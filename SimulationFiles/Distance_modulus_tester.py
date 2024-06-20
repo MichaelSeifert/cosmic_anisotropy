@@ -30,17 +30,72 @@ def main():
     '''
     trueDataSet = DataSet("Simulated_data_no_noise_10k.csv")
     errors = calculatedDistMods - trueDataSet.distmoddata
+
+    # Create scatter plot of error in dist. mod    
+    # plt.scatter(trueDataSet.distmoddata,
+    #             abs(errors),
+    #             s=3)
+    # plt.xlabel("True dist. mod.")
+    # plt.ylabel("Error in dist. mod.")
+    # plt.yscale('log')
     
-    plt.scatter(trueDataSet.distmoddata,
-                abs(errors),
-                s=3)
-    plt.xlabel("True dist. mod.")
-    plt.ylabel("Error in dist. mod.")
-    plt.yscale('log')
+    # Retrieve information for nbad worst sources
+    nbad = 50
+    badsourceinds = np.argpartition(abs(errors),-nbad)[-nbad:]
+    badsourceinds = badsourceinds[np.argsort(errors[badsourceinds])]
+    print("Worst errors in dist. mod.:\n", errors[badsourceinds])
+    
+    badsourcelocs = dataset.nangledata[badsourceinds]
+    
+    # print(badsourcelocs)
+    badxvals = badsourcelocs[:,0]
+    badyvals = badsourcelocs[:,1]
+    badzvals = badsourcelocs[:,2]
+    # fig = plt.figure()
+    # ax = plt.axes(projection='3d')
+    # ax.scatter(xvals,yvals,zvals)
+    
+    badcosinevals=[]
+    for i in range(nbad):
+        badcosinevals.append(np.dot(badsourcelocs[i],[2/3, 2/3, -1/3]))
+    allcosinevals=[]
+    for i in range(10000):
+        allcosinevals.append(np.dot(dataset.nangledata[i], [2/3, 2/3, -1/3]))
+
+    # print(badcosinevals)  
+    # plt.hist(badcosinevals, bins=20)  
+
+    # Plot all source cosines just as a sanity check
+    # xvals = dataset.nangledata[:,0]
+    # yvals = dataset.nangledata[:,1]
+    # zvals = dataset.nangledata[:,2]
+    
+    allcosinevals=[]
+    for i in range(10000):
+        allcosinevals.append(np.dot(dataset.nangledata[i], [2/3, 2/3, -1/3]))
+ 
+    fig, axs = plt.subplots(2,sharex=True)
+    fig.suptitle('All cos(theta) values vs. \'bad\' values')
+    axs[0].hist(allcosinevals, bins="auto")
+    axs[1].hist(badcosinevals, bins="auto")
+                              
+    # plt.hist(allcosinevals, bins='auto')                       
+
+    # Plot z values of worst errors
+        
+    badzvals=dataset.zdata[badsourceinds]
+    allzvals=dataset.zdata
+    
+    print("z values of worst errors:\n", badzvals)
+    
+    fig, axs = plt.subplots(2,sharex=True)
+    fig.suptitle('All z values vs. \'bad\' z values')
+    axs[0].hist(allzvals, bins="auto")
+    axs[1].hist(badzvals, bins="auto")
     
     print("Chi-squared: ", 
           chiSquared([0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]], 
-                     dataset))
+                      dataset))
     
 if(__name__ == "__main__"):
     main()

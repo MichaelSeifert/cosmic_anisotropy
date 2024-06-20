@@ -25,7 +25,7 @@ def distMod(z_list, nvec_list, paramList):
     # calculate ABvacmetric0 for these parameters
     solution, contractFlag, times = ABvacmetric0([O_m, O_r, O_L, O_k, O_B, B0])
     
-    # find cos(theta) between nvec and n0vec
+    # find abs(cos(theta)) between nvec and n0vec
     c_theta_list = abs(np.dot(nvec_list, n0vec))
     
     
@@ -33,13 +33,32 @@ def distMod(z_list, nvec_list, paramList):
     #could potentially be even more efficient to solve a PDE instead of an ODE + interpolation to get helperfunctions.
     
     #set points to interpolate between
-    #    c_theta_points = np.array([.000001, .00001, .0001, .001, .01, .1, 1])
+    
+    # Original choice
+    # c_theta_points = np.array([.000001, .00001, .0001, .001, .01, .1, 1])
+    
+    # Logarithmically distributed from 10^(-minintval) to 1, with a certain num.
+    # of points per decade
     minintval = 6
-    intptsperdecade = 5
+    intptsperdecade = 50
     c_theta_points = np.exp(np.linspace(-minintval*np.log(10.),0,minintval*intptsperdecade+1))
-    z_points = np.arange(0, 2.0, .01)
-    # z_points = np.concatenate((np.arange(0, 1.8, 0.01), np.arange(1.801, 2, 0.001)))
-    # print(z_points)
+
+    # Linear distribution
+    # c_theta_points=np.linspace(0.000001,1,100)
+    
+    # log dist. up to 0.1, linear from 0.1 to 1
+    # minintval = 6
+    # intptsperdecade = 6
+    # c_theta_points = np.concatenate(
+    #     (np.exp(np.linspace(-minintval*np.log(10.),-np.log(10.),(minintval-1)*intptsperdecade,endpoint=False)),
+    #     np.linspace(0.1,1,20))
+    #     )
+
+    
+    # print("Theta interpolation points:\n", c_theta_points)
+    # z_points = np.arange(0, 2.0, .01)
+    z_points = np.concatenate((np.arange(0, 1.8, 0.01), np.arange(1.801, 2, 0.001)))
+    # print("z interpolation points:\n", z_points)
     
     #store results
     trows = []

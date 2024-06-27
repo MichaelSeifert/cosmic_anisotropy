@@ -58,7 +58,8 @@ def runOneMCMC():
     
     O_k = 1 - O_m - O_r - O_L - O_B - np.power(b0, 2)
         
-    startPoint = [O_m, O_r, O_L, O_k, O_B, b0, h, n0vec]
+    # startPoint = [O_m, O_r, O_L, O_k, O_B, b0, h, n0vec]
+    startPoint = [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]]
     
     #load the dataset
     dataset = DataSet(args.dataset)

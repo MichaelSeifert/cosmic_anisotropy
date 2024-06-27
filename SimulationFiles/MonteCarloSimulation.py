@@ -303,7 +303,7 @@ def main():
     
     dataset = DataSet("SimulatedData.csv")
     
-    MCMC(dataset, 1e5, startPoint, run=1, cont=False)
+    MCMC(dataset, 100, startPoint, run=1, cont=False)
     
     print()
     

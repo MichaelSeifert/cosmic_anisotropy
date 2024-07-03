@@ -133,3 +133,4 @@ dmypy.json
 
 # MCMC output
 MonteCarloRun*.csv
+Conda_error_report.txt

@@ -79,7 +79,7 @@ def main():
     ax[1].set_ylabel('q_o')
     ax[2].set_ylabel('psi_o')
     ax[2].set_xlabel('z')
-    ax[2].set_yscale('asinh')    
+    ax[2].set_yscale('linear')    
     fig.legend(loc='outside upper right')
     plt.show()
     

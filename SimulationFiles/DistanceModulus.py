@@ -56,8 +56,8 @@ def distMod(z_list, nvec_list, paramList):
 
     
     # print("Theta interpolation points:\n", c_theta_points)
-    # z_points = np.arange(0, 2.0, .01)
-    z_points = np.concatenate((np.arange(0, 1.8, 0.01), np.arange(1.801, 2, 0.001)))
+    z_points = np.arange(0, 2.0, .01)
+    # z_points = np.concatenate((np.arange(0, 1.8, 0.01), np.arange(1.801, 2, 0.001)))
     # print("z interpolation points:\n", z_points)
     
     #store results

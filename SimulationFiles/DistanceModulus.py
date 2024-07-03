@@ -40,7 +40,7 @@ def distMod(z_list, nvec_list, paramList):
     # Logarithmically distributed from 10^(-minintval) to 1, with a certain num.
     # of points per decade
     minintval = 6
-    intptsperdecade = 50
+    intptsperdecade = 5
     c_theta_points = np.exp(np.linspace(-minintval*np.log(10.),0,minintval*intptsperdecade+1))
 
     # Linear distribution

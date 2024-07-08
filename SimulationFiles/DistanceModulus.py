@@ -114,15 +114,15 @@ def distMod(z_list, nvec_list, paramList):
     
 def main():
     
-    dataset = DataSet("SimulatedData.csv")
+    dataset = DataSet("Simulated_data_10k.csv")
     calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]])
-    print(calculatedDistMods)
+    # print(calculatedDistMods)
     
     '''
     Code below plots calculated DMs from "true" DMs imported from no-noise 
     data set.  Used for debugging purposes.
     '''
-    trueDataSet = DataSet("Simulated_data_no_noise.csv")
+    trueDataSet = DataSet("Simulated_data_no_noise_10k.csv")
     plt.pyplot.scatter(trueDataSet.distmoddata,calculatedDistMods)
     plt.pyplot.xlabel("True dist. mod.")
     plt.pyplot.ylabel("Calc. dist. mod.")

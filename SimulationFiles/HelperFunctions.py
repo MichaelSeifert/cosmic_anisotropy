@@ -31,28 +31,50 @@ def vectorfield(z, w, p):
     return f
     
 
-def helperfunctions(p):
+def helperfunctions(p, targetzvals=None):
     """
     Solves the ODE relating t, q, psi. 
 
     Arguments:
         p :  vector of the parameters
                   p = [ABsolution, theta_0]
+        targetzvals : sorted array of desired z values for calculation of 
+        helper functions.  Default:  None
     """
     
+    if targetzvals==None:
+        continuousOutput = True  
+        maxz = 2
+        minz = 0
+        # If no specific z values requested, continuous solution returned
+    else:
+        continuousOutput = False
+        maxz = targetzvals[-1]
+        minz = 0
+        # If specific z values requested, no continuous solution needed
+        
+    vectorizedInput = True; 
+    # defines whether or not the solver is handling a system or an individual ODE
     
-    continuousOutput = True; # whether or not to output a continuous solution
-    vectorizedInput = True; # defines whether or not the solver is handling a system or an individual ODE
-    zRange = [0, 2] # defines the range of z values to solve over
+    zRange = [minz, maxz] # defines the range of z values to solve over
+    
     initVal = [0, 0, 0] # defines initial values for t, q, psi
     
     # calculate the solution. Returns a Bunch object with many fields.
-    solution = solve_ivp(vectorfield, zRange, initVal, dense_output = continuousOutput, vectorized = vectorizedInput, args = (p,))
+    solution = solve_ivp(vectorfield, zRange, initVal, 
+                         dense_output = continuousOutput, 
+                         vectorized = vectorizedInput, 
+                         args = (p,),
+                         t_eval = targetzvals
+                         )
     
-    sol = solution.sol # the continuous solution of the differential equation as instance of OdeSolution
-    redshifts = solution.t # the redshifts that were considered
+    sol = solution.sol  # the continuous solution of the differential equation 
+                        # as instance of OdeSolution
+    funcvals = solution.y # Explicitly calculated function values
+    redshifts = solution.t # the redshifts that were considered.  If 
+                           # targetzvals was provided, this should be the same.
     
-    return [sol, redshifts]
+    return [sol, redshifts, funcvals]
 
 def main():    
     
@@ -68,7 +90,7 @@ def main():
     
     cthvals=[0.01, 0.1, 0.2, 0.5, 1]
     for cth in reversed(cthvals):
-        sol, redshifts = helperfunctions([equation, cth])
+        sol, redshifts, funcvals = helperfunctions([equation, cth])
         redshifts = np.linspace(0.01,2.,100)
         t, q, psi = sol(redshifts)
         ax[0].plot(redshifts, t, label=cth)
@@ -84,6 +106,11 @@ def main():
     plt.show()
     
     print(sol(.5))
+    
+    sol, redshifts, funcvals = helperfunctions([equation, 0.5], [0, 0.5, 1.0, 1.5])
+    
+    print(redshifts)
+    print(funcvals)
     
 if(__name__ == "__main__"):
     main()

@@ -12,13 +12,20 @@ from LoadingDataFromCSV import DataSet
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+from timeit import default_timer as timer
+
 warnings.filterwarnings("ignore")
 
 def main():
     
     dataset = DataSet("Simulated_Data_10k.csv")
+    
+    start = timer()
     calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, 
                                  [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]])
+    end = timer()
+    print("Elapsed time: ", end - start, "s")
+
     # print(calculatedDistMods)
     print("Sources with delta = NaN: ", len(np.argwhere(np.isnan(calculatedDistMods))))
     print("Sources with delta = inf: ", len(np.argwhere(np.isinf(calculatedDistMods))))

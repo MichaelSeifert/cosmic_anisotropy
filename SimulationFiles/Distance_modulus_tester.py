@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 def main():
     
-    dataset = DataSet("Simulated_Data_10k.csv")
+    dataset = DataSet("Simulated_Data_no_noise_10k.csv")
     
     start = timer()
     calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, 

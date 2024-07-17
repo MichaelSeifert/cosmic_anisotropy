@@ -67,15 +67,16 @@ def distMod(z_list, nvec_list, paramList):
     
     #calculate helperfuncs for each theta value, and each z values within that. Append to points lists
     for thetaval in c_theta_points:
-        helperfuncs, redshifts, funcvals = helperfunctions([solution, thetaval])
-        trow = []
-        qrow = []
-        psirow = []
-        for zval in z_points:
-            teval, qoval, psioval = helperfuncs(zval)
-            trow.append(teval)
-            qrow.append(qoval)
-            psirow.append(psioval)
+        helperfuncs, redshifts, funcvals = helperfunctions([solution, thetaval], z_points)
+        # trow = []
+        # qrow = []
+        # psirow = []
+        # for zval in z_points:
+        #     teval, qoval, psioval = helperfuncs(zval)
+        #     trow.append(teval)
+        #     qrow.append(qoval)
+        #     psirow.append(psioval)
+        trow, qrow, psirow = funcvals
         trows.append(np.array(trow))
         qrows.append(np.array(qrow))
         psirows.append(np.array(psirow))

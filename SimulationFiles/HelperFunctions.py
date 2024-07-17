@@ -31,7 +31,7 @@ def vectorfield(z, w, p):
     return f
     
 
-def helperfunctions(p, targetzvals=None):
+def helperfunctions(p, targetzvals=[]):
     """
     Solves the ODE relating t, q, psi. 
 
@@ -42,7 +42,7 @@ def helperfunctions(p, targetzvals=None):
         helper functions.  Default:  None
     """
     
-    if targetzvals==None:
+    if len(targetzvals) == 0:
         continuousOutput = True  
         maxz = 2
         minz = 0
@@ -62,10 +62,12 @@ def helperfunctions(p, targetzvals=None):
     
     # calculate the solution. Returns a Bunch object with many fields.
     solution = solve_ivp(vectorfield, zRange, initVal, 
+                         # method = 'RK45',
                          dense_output = continuousOutput, 
                          vectorized = vectorizedInput, 
+                         t_eval = targetzvals,
                          args = (p,),
-                         t_eval = targetzvals
+                         atol = 1e-9
                          )
     
     sol = solution.sol  # the continuous solution of the differential equation 

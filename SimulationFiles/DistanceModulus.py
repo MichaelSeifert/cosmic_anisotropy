@@ -67,7 +67,7 @@ def distMod(z_list, nvec_list, paramList):
     
     #calculate helperfuncs for each theta value, and each z values within that. Append to points lists
     for thetaval in c_theta_points:
-        helperfuncs, redshifts = helperfunctions([solution, thetaval])
+        helperfuncs, redshifts, funcvals = helperfunctions([solution, thetaval])
         trow = []
         qrow = []
         psirow = []
@@ -115,7 +115,10 @@ def distMod(z_list, nvec_list, paramList):
 def main():
     
     dataset = DataSet("Simulated_data_10k.csv")
-    calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, [2/3, 2/3, -1/3]])
+    calculatedDistMods = distMod(dataset.zdata, dataset.nangledata, 
+                                 [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025, 1, 
+                                  [2/3, 2/3, -1/3]]
+                                 )
     # print(calculatedDistMods)
     
     '''

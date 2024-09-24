@@ -71,10 +71,9 @@ def helperfunctions(ABsolution, targetzvals=[]):
     
     eq = PDE(
         {
-            "tau": -(1+t)/qfunction(x,ABsolution),
-            "q": (np.exp(-2*A(t) + 2*B(t)))/qfunction(x,ABsolution),
-            "psi": np.exp(-4*A(t) - 2*B(t))/(qfunction(x,ABsolution)
-                                             * np.power(1 + t, 2)),
+            "tau": "-(1+t)/qfunction(x,ABsolution)",
+            "q": "(np.exp(-2*A(t) + 2*B(t)))/qfunction(x,ABsolution)",
+            "psi": "np.exp(-4*A(t) - 2*B(t))/(qfunction(x,ABsolution) * np.power(1 + t, 2))",
             }
         )
     

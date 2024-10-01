@@ -20,9 +20,9 @@ def vectorfield(z, w, p):
     """
      
     # define stuff
-    t, q, psi = w
+    tau, q, psi = w
     ABsolution, theta_0 = p
-    A, B, C, D = ABsolution(t)
+    A, B, C, D = ABsolution(tau)
     #equation 32 in the mathematics document. It was easier to just define once as Q and not retype every time.
     Q = (((C + 2*D)*np.exp(-2*A - 4*B)*math.pow(theta_0,2))+((C-D)*np.exp(-2*A + 2*B)*(1 - math.pow(theta_0,2))))
     
@@ -31,13 +31,52 @@ def vectorfield(z, w, p):
     
     return f
 
-def qfunction(cth, ABsolution):
+def qfunction(cth, ABsolution, z):
     
-    A, B, C, D = ABsolution(t)
+    A, B, C, D = ABsolution(z)
     Q = (((C + 2*D)*np.exp(-2*A - 4*B)*math.pow(cth,2))+
          ((C-D)*np.exp(-2*A + 2*B)*(1 - math.pow(cth,2))))
     
     return Q
+
+class helperfunctionPDE(pde.PDEBase):
+
+    def __init__(self, cosparams=None): #this will fail if parameters aren't defined
+        super().__init__()
+        
+        
+        self.cosparams = cosparams
+
+    def evolution_rate(self, state, z=0): 
+        # Need to set explicit_time_dependence flag -- where?
+        # NEED TO GET ctheta in here somehow
+    
+        """
+        Defines the differential equations for ABvacmetric0 derived from Eq 9b and 9c
+    
+        Arguments:
+            w :  vector of the state variables:
+                      w = [t, q, psi]
+            z :  red shift
+        """
+         
+        # extract coordinates from grid
+        # see https://github.com/zwicker-group/py-pde/discussions/46
+        assert state.grid.dim == 1  # implementation only works for 1d problems
+        ctheta = state.grid.cell_coords[:, 0]  # this extracts the x-coordinates of all cells
+        
+        # define stuff
+        tau, q, psi = state
+        # ABsolution, theta_0 = p
+        ABsolution = ABvacmetric0(self.cosparams)[0] # This is currently borken
+        A, B, C, D = ABsolution(tau)
+        #equation 32 in the mathematics document. It was easier to just define once as Q and not retype every time.
+        Q = (((C + 2*D)*np.exp(-2*A - 4*B)*ctheta**2)+((C-D)*np.exp(-2*A + 2*B)*(1 - ctheta**2)))
+        
+        # create f = [t', q', psi']
+        derivs = [-(1+z)/Q, (np.exp(-2*A + 2*B))/Q, (np.exp(-4*A - 2*B))/(Q * np.power(1 + z, 2))]
+        
+        return pde.FieldCollection(derivs)
 
 
 def helperfunctions(ABsolution, targetzvals=[]):
@@ -73,7 +112,7 @@ def helperfunctions(ABsolution, targetzvals=[]):
         {
             "tau": "-(1+t)/qfunction(x,ABsolution)",
             "q": "(np.exp(-2*A(t) + 2*B(t)))/qfunction(x,ABsolution)",
-            "psi": "np.exp(-4*A(t) - 2*B(t))/(qfunction(x,ABsolution) * np.power(1 + t, 2))",
+            "psi": "np.exp(-4*A(t) - 2*B(t))/(qfunction(x,ABsolution) * np.power(1 + t, 2))"
             }
         )
     
@@ -134,41 +173,13 @@ def helperfunctions(ABsolution, targetzvals=[]):
 
 def main():    
     
-    #[O_m, O_r, O_L, O_k, O_B, B0]
-    p = [0.5, 0.02, 0.3, 0.079375, 0.1, 0.025]
-    solution = ABvacmetric0(p)
+    p = [0.5,0.02,0.3,0.079375,0.1,0.025]
+    grid = pde.CartesianGrid([[0,1]], 20, periodic=False)
+    state = pde.FieldCollection.from_scalar_expressions(grid, ["0","0","0"])
     
-    equation = solution[0]
-    
-    # sol, redshifts = helperfunctions([equation, 0.5])
-    
-    fig, ax = plt.subplots(3, 1, sharex = True)
-    
-# =============================================================================
-#     cthvals=[0.01, 0.1, 0.2, 0.5, 1]
-#     for cth in reversed(cthvals):
-#         sol, redshifts, funcvals = helperfunctions([equation, cth])
-#         redshifts = np.linspace(0.01,2.,100)
-#         t, q, psi = sol(redshifts)
-#         ax[0].plot(redshifts, t, label=cth)
-#         ax[1].plot(redshifts, q)
-#         ax[2].plot(redshifts, psi)
-#         
-# =============================================================================
-    ax[0].set_ylabel('tau_e')
-    ax[1].set_ylabel('q_o')
-    ax[2].set_ylabel('psi_o')
-    ax[2].set_xlabel('z')
-    ax[2].set_yscale('linear')    
-    fig.legend(loc='outside upper right')
-    plt.show()
-    
-    # print(sol(.5))
-    
-    dummy = helperfunctions([equation, 0.5], [0, 0.5, 1.0, 1.5])
-    
-    # print(redshifts)
-    # print(funcvals)
+    eq = helperfunctionPDE(cosparams=p)  # define the pde
+    result = eq.solve(state, t_range=10, dt=0.01)
+
     
 if(__name__ == "__main__"):
     main()

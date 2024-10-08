@@ -68,15 +68,18 @@ class helperfunctionPDE(pde.PDEBase):
         # define stuff
         tau, q, psi = state
         # ABsolution, theta_0 = p
-        ABsolution = ABvacmetric0(self.cosparams)[0] # This is currently borken
-        A, B, C, D = ABsolution(tau)
+        ABsolution, flag, times = ABvacmetric0(self.cosparams) # This is currently borken
+        A, B, C, D = ABsolution(tau.data)
         #equation 32 in the mathematics document. It was easier to just define once as Q and not retype every time.
-        Q = (((C + 2*D)*np.exp(-2*A - 4*B)*ctheta**2)+((C-D)*np.exp(-2*A + 2*B)*(1 - ctheta**2)))
+        Q = (((C + 2*D)*np.exp(-2*A - 4*B)*np.power(ctheta,2))+((C-D)*np.exp(-2*A + 2*B)*(1 - np.power(ctheta,2))))
         
         # create f = [t', q', psi']
-        derivs = [-(1+z)/Q, (np.exp(-2*A + 2*B))/Q, (np.exp(-4*A - 2*B))/(Q * np.power(1 + z, 2))]
+        # derivs = np.array([-(1+z)/Q, (np.exp(-2*A + 2*B))/Q, (np.exp(-4*A - 2*B))/(Q * np.power(1 + z, 2))])
+        tau_z =pde.ScalarField(state.grid, -(1+z)/Q)        
+        q_z = pde.ScalarField(state.grid, (np.exp(-2*A + 2*B))/Q)
+        psi_z = pde.ScalarField(state.grid, (np.exp(-4*A - 2*B))/(Q * np.power(1 + z, 2)))
         
-        return pde.FieldCollection(derivs)
+        return pde.FieldCollection([tau_z, q_z, psi_z])
 
 
 def helperfunctions(ABsolution, targetzvals=[]):
@@ -179,7 +182,7 @@ def main():
     
     eq = helperfunctionPDE(cosparams=p)  # define the pde
     result = eq.solve(state, t_range=10, dt=0.01)
-
+    result.plot()
     
 if(__name__ == "__main__"):
     main()

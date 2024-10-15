@@ -178,11 +178,13 @@ def main():
     
     p = [0.5,0.02,0.3,0.079375,0.1,0.025]
     grid = pde.CartesianGrid([[0,1]], 20, periodic=False)
-    state = pde.FieldCollection.from_scalar_expressions(grid, ["0","0","0"])
+    state = pde.FieldCollection.from_scalar_expressions(grid, ["0","0","0"], labels=["tau","q","psi"])
     
     eq = helperfunctionPDE(cosparams=p)  # define the pde
-    result = eq.solve(state, t_range=10, dt=0.01)
-    result.plot()
+    storage = pde.MemoryStorage()
+    result = eq.solve(state, t_range=2, dt=0.001, tracker=storage.tracker(0.01))
+    # result.plot()
+    pde.plot_kymographs(storage)
     
 if(__name__ == "__main__"):
     main()

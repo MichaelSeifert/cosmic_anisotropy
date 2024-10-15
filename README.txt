@@ -32,3 +32,9 @@ The remaining files include information about the miniconda environment used to 
 
  HelperGrapher.py was created solely to assist in debugging, and compares to the original Mathematica
  GeneratePoints.py can be used to generate a large number of start points at once, and remains untested as it was never used for anything.
+
+ ## This Branch
+ This branch attempted to implement the "helper functions" calculation using the py-pde package.  It was found to be poorly adapted to the purpose for the following reasons:
+ - Very slow before optimization (~45 s per calculation)
+ - Does not return time-evolution (z-evolution data by default, only final state
+ - May not be able to return data at specified z values, only at regular grid;  if so, would necessitate interpolation anyhow
